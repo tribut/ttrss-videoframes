@@ -18,7 +18,7 @@ class VideoFrames extends Plugin {
 			'player.vimeo.com' => '/video/',
 			'www.myvideo.de' => '/embed/',
 			'www.youtube-nocookie.com' => '/embed/',
-			'www.dailymotion.com', => '/embed/video/'
+			'www.dailymotion.com' => '/embed/video/'
 		);
 
 		$xpath = new DOMXPath($doc);

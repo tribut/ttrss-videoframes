@@ -2,7 +2,7 @@
 class VideoFrames extends Plugin {
 
 	function about() {
-		return array(0.1,
+		return array(0.2,
 			"Enable the playback of embedded videos from well-known sites",
 			"dxbi",
 			false);

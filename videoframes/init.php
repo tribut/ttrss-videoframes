@@ -12,7 +12,7 @@ class VideoFrames extends Plugin {
 		$host->add_hook($host::HOOK_SANITIZE, $this);
 	}
 
-	function hook_sanitize($doc, $site_url) {
+	function hook_sanitize($doc, $site_url, $allowed_elements, $disallowed_attributes) {
 		// array of whitelisted iframes
 		// [key]   full hostname of the src attribute
 		// [value] start of the path must match this string
@@ -61,6 +61,13 @@ class VideoFrames extends Plugin {
 			)
 		);
 
+		if (isset($allowed_elements) && isset($disallowed_attributes) {
+			if (!array_search('iframe', $allowed_elements)) {
+				$remove_unknown_iframes = true;
+				$allowed_elements[] = 'iframe';
+			}
+		}
+
 		$xpath = new DOMXPath($doc);
 
 		// remove sandbox from whitelisted iframes and force https
@@ -85,6 +92,8 @@ class VideoFrames extends Plugin {
 				while ($entry->hasAttribute('sandbox')) {
 					$entry->removeAttribute('sandbox');
 				}
+			} elseif ($remove_unknown_iframes) {
+				$entry->parentNode->removeChild($entry);
 			}
 		}
 
@@ -146,7 +155,11 @@ class VideoFrames extends Plugin {
 			$tag_parent->replaceChild($tag_iframe, $tag_object);
 		}
 
-		return $doc;
+		if ($remove_unknown_iframes) {
+			return array($doc, $allowed_elements, $disallowed_attributes);
+		} else {
+			return $doc;
+		}
 	}
 
 }

@@ -61,7 +61,7 @@ class VideoFrames extends Plugin {
 			)
 		);
 
-		if (isset($allowed_elements) && isset($disallowed_attributes) {
+		if (isset($allowed_elements) && isset($disallowed_attributes)) {
 			if (!array_search('iframe', $allowed_elements)) {
 				$remove_unknown_iframes = true;
 				$allowed_elements[] = 'iframe';

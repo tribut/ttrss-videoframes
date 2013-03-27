@@ -12,7 +12,7 @@ class VideoFrames extends Plugin {
 		$host->add_hook($host::HOOK_SANITIZE, $this);
 	}
 
-	function hook_sanitize($doc, $site_url, $allowed_elements, $disallowed_attributes) {
+	function hook_sanitize($doc, $site_url, $allowed_elements = null, $disallowed_attributes = null) {
 		// array of whitelisted iframes
 		// [key]   full hostname of the src attribute
 		// [value] start of the path must match this string
@@ -39,11 +39,11 @@ class VideoFrames extends Plugin {
 		// [value][2] (optional) hostname for iframe src
 		$transform_objects = array(
 			'www.youtube.com' => array(
-				'#^/v/([a-zA-Z0-9_]+)(&?.*)?$#',
+				'#^/v/([a-zA-Z0-9_]+)(&.*)?$#',
 				'/embed/$1'
 			),
 			'www.youtube-nocookie-com' => array(
-				'#^/v/([a-zA-Z0-9_]+)(&?.*)$#',
+				'#^/v/([a-zA-Z0-9_]+)(&.*)?$#',
 				'/embed/$1'
 			),
 			'vimeo.com' => array(
@@ -52,16 +52,16 @@ class VideoFrames extends Plugin {
 				'player.vimeo.com'
 			),
 			'www.myvideo.de' => array(
-				'#^/movie/([a-zA-Z0-9_]+)(&?.*)$#',
+				'#^/movie/([a-zA-Z0-9_]+)(&.*)?$#',
 				'/embed/$1'
 			),
 			'www.dailymotion.com' => array(
-				'#^/swf/video/([a-zA-Z0-9_]+)(&?.*)$#',
+				'#^/swf/video/([a-zA-Z0-9_]+)(&.*)?$#',
 				'#/embed/video/$1#'
 			)
 		);
 
-		if (isset($allowed_elements) && isset($disallowed_attributes)) {
+		if (!is_null($allowed_elements) && !is_null($disallowed_attributes)) {
 			if (!array_search('iframe', $allowed_elements)) {
 				$remove_unknown_iframes = true;
 				$allowed_elements[] = 'iframe';

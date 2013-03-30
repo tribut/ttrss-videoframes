@@ -11,10 +11,12 @@ Currently supported sites:
 
 ![Screenshot](http://i.imgur.com/MhccdQn.png)
 
-This plugins allows the inclusion of iframes from the above listed sites without the *sandbox* attribute to allow flash videos. If you do not trust one or more of the sites this plugin could be considered a security risk. It will force the iframe to be requested over https to avoid possible MITM scenarios however.
-Additionally, the plugin will transform directly embedded flash videos from those site to iframes so they can be shown as well.
+This plugins allows the inclusion of iframes from the above listed sites without the *sandbox* attribute to allow flash videos. Additionally, the plugin will transform directly embedded flash videos from those site to iframes so they can be shown as well.
 
-Requires tt-rss 1.7.5 or later. Note, that if your browser does not support the sandbox attribute, this plugin might not work on versions of tt-rss prior to 1.7.6.
+If you do not trust one or more of the sites this plugin could be considered a *security risk*. It will force the iframe to be requested over https to avoid possible MITM scenarios however.
+
+
+Requires **tt-rss 1.7.5 or later**. Note, that if your browser does not support the sandbox attribute, this plugin might not work on versions of tt-rss prior to 1.7.6.
 
 Copyright (c) 2013 [Felix Eckhofer](http://www.eckhofer.com)
 

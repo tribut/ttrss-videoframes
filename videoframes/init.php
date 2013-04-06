@@ -21,7 +21,8 @@ class VideoFrames extends Plugin {
 			'www.youtube-nocookie.com' => '/embed/',
 			'player.vimeo.com' => '/video/',
 			'www.myvideo.de' => '/embed/',
-			'www.dailymotion.com' => '/embed/video/'
+			'www.dailymotion.com' => '/embed/video/',
+			'www.viddler.com' => '/embed/'
 		);
 
 		// array of <object><embed></object> style
@@ -74,6 +75,9 @@ class VideoFrames extends Plugin {
 		$entries = $xpath->query('//iframe');
 		foreach ($entries as $entry) {
 			$src = $entry->getAttribute('src');
+			// unfortunately parse_url won't support urls without protocol
+			// (albeit apparently allowed by the RFC...)
+			if (strpos($src, '//') === 0) $src = 'https:' . $src;
 			$url = parse_url($src);
 
 			if ($url &&

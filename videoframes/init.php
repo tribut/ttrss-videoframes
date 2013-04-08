@@ -22,7 +22,8 @@ class VideoFrames extends Plugin {
 			'player.vimeo.com' => '/video/',
 			'www.myvideo.de' => '/embed/',
 			'www.dailymotion.com' => '/embed/video/',
-			'www.viddler.com' => '/embed/'
+			'www.viddler.com' => '/embed/',
+			'w.soundcloud.com' => '/player/'
 		);
 
 		// array of <object><embed></object> style

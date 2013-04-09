@@ -106,6 +106,9 @@ class VideoFrames extends Plugin {
 		$entries = $xpath->query('//object/embed[@src]');
 		foreach ($entries as $entry) {
 			$src        = $entry->getAttribute('src');
+			// unfortunately parse_url won't support urls without protocol
+			// (albeit apparently allowed by the RFC...)
+			if (strpos($src, '//') === 0) $src = 'https:' . $src;
 			$url        = parse_url($src);
 			if (!$url) continue;
 

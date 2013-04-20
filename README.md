@@ -3,7 +3,7 @@ videoframes for tt-rss
 
 [Tiny Tiny RSS](http://www.tt-rss.org) plugin to **enable embedded videos** in feeds.
 
-It currently supports Youtube, Vimeo, Dailymotion, MyVideo and Viddler. If you are missing a site in this list, please [open a ticket](https://github.com/tribut/ttrss-videoframes/issues/new).
+It currently supports Youtube, Vimeo, Dailymotion, MyVideo, Viddler and SoundCloud. If you are missing a site in this list, please [open a ticket](https://github.com/tribut/ttrss-videoframes/issues/new).
 
 ![Screenshot](http://i.imgur.com/MhccdQn.png)
 

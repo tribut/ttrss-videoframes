@@ -8,6 +8,10 @@ class VideoFrames extends Plugin {
 			false);
 	}
 
+	function api_version() {
+		return 2;
+	}
+
 	function init($host) {
 		$host->add_hook($host::HOOK_SANITIZE, $this);
 	}

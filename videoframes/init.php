@@ -86,12 +86,7 @@ class VideoFrames extends Plugin {
 		// remove sandbox from whitelisted iframes and force https
 		$entries = $xpath->query('//iframe');
 		foreach ($entries as $entry) {
-			$src = $entry->getAttribute('src');
-			// unfortunately parse_url won't support urls without protocol
-			// (albeit apparently allowed by the RFC...)
-			if (strpos($src, '//') === 0) {
-                $src = 'https:' . $src;
-            }
+			$src = $this->_getSrcAttribute($entry);
 			$url = parse_url($src);
 
 			if ($url &&
@@ -200,5 +195,17 @@ class VideoFrames extends Plugin {
         }
 
         return $node;
+    }
+
+    protected function _getSrcAttribute(DOMNode $node)
+    {
+        $src = $node->getAttribute('src');
+        // unfortunately parse_url won't support urls without protocol
+        // (albeit apparently allowed by the RFC...)
+        if (strpos($src, '//') === 0) {
+            $src = 'https:' . $src;
+        }
+
+        return $src;
     }
 }

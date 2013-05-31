@@ -103,10 +103,7 @@ class VideoFrames extends Plugin {
 				if ($rcount < 1) continue; // if this happens the url is really strange
 				$entry->setAttribute('src', $src);
 
-				// remove sandbox attribute
-				while ($entry->hasAttribute('sandbox')) {
-					$entry->removeAttribute('sandbox');
-				}
+                $entry = $this->_removeSandboxAttribute($entry);
 			} elseif ($remove_unknown_iframes) {
 				$entry->parentNode->removeChild($entry);
 			}
@@ -147,7 +144,7 @@ class VideoFrames extends Plugin {
 					$iframesrc = 'https://' . $newhost .
 						preg_replace($pattern,
 							$replace,
-							$url['path'], 
+							$url['path'],
 							-1, $rcount);
 					if ($rcount < 1) continue;
 				}
@@ -162,7 +159,7 @@ class VideoFrames extends Plugin {
 			// youtube defaults
 			if ($height < 1) $height = 315;
 			if ($width  < 1) $width = 560;
- 
+
 			$tag_iframe = $doc->createElement('iframe');
 			$tag_iframe->setAttribute('allowfullscreen', '');
 			$tag_iframe->setAttribute('width', $width);
@@ -180,5 +177,12 @@ class VideoFrames extends Plugin {
 		}
 	}
 
-}
+    protected function _removeSandboxAttribute(DOMNode $node)
+    {
+        while ($node->hasAttribute('sandbox')) {
+            $node->removeAttribute('sandbox');
+        }
 
+        return $node;
+    }
+}

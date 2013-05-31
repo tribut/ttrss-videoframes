@@ -89,10 +89,7 @@ class VideoFrames extends Plugin {
 			$src = $this->_getSrcAttribute($entry);
 			$url = parse_url($src);
 
-			if ($url &&
-			    array_key_exists($url['host'], $this->allowed_iframes) &&
-			    strpos($url['path'], $this->allowed_iframes[$url['host']]) === 0
-			) {
+			if ($this->_isIframeUrlValid($url)) {
 				// force https
 				// http_build_url would be the nice solution,
 				// but that's apparently not available everywhere
@@ -202,5 +199,20 @@ class VideoFrames extends Plugin {
         }
 
         return $src;
+    }
+
+    /**
+     * Checks to see if the URL was parse-able, is in the allowed host list, and
+     * begins with the proper path
+     *
+     * @param array|false $url Output of parse_url
+     *
+     * @return bool
+     */
+    protected function _isIframeUrlValid($url)
+    {
+        return $url &&
+            array_key_exists($url['host'], $this->allowed_iframes) &&
+            strpos($url['path'], $this->allowed_iframes[$url['host']]) === 0;
     }
 }

@@ -88,7 +88,9 @@ class VideoFrames extends Plugin {
 			$src = $entry->getAttribute('src');
 			// unfortunately parse_url won't support urls without protocol
 			// (albeit apparently allowed by the RFC...)
-			if (strpos($src, '//') === 0) $src = 'https:' . $src;
+			if (strpos($src, '//') === 0) {
+                $src = 'https:' . $src;
+            }
 			$url = parse_url($src);
 
 			if ($url &&
@@ -100,7 +102,9 @@ class VideoFrames extends Plugin {
 				// but that's apparently not available everywhere
 				$src = preg_replace('#^[a-z]+://#i', 'https://',
 					$src, -1, $rcount);
-				if ($rcount < 1) continue; // if this happens the url is really strange
+				if ($rcount < 1) { // if this happens the url is really strange
+                    continue;
+                }
 				$entry->setAttribute('src', $src);
 
                 $entry = $this->_removeSandboxAttribute($entry);
@@ -115,18 +119,23 @@ class VideoFrames extends Plugin {
 			$src        = $entry->getAttribute('src');
 			// unfortunately parse_url won't support urls without protocol
 			// (albeit apparently allowed by the RFC...)
-			if (strpos($src, '//') === 0) $src = 'https:' . $src;
+			if (strpos($src, '//') === 0) {
+                $src = 'https:' . $src;
+            }
 			$url        = parse_url($src);
-			if (!$url) continue;
+			if (!$url) {
+                continue;
+            }
 
 			$host       = $url['host'];
 			if (array_key_exists($host, $this->transform_objects)) {
 				$pattern = $this->transform_objects[$host][0];
 				$replace = $this->transform_objects[$host][1];
-				if (isset($this->transform_objects[$host][2]))
-					$newhost = $this->transform_objects[$host][2];
-				else
-					$newhost = $host;
+				if (isset($this->transform_objects[$host][2])) {
+                    $newhost = $this->transform_objects[$host][2];
+                } else {
+                    $newhost = $host;
+                }
 				if ($pattern[0] == '?') {
 					$querykey = substr($pattern, 1);
 					parse_str($url['query'], $query);
@@ -146,7 +155,9 @@ class VideoFrames extends Plugin {
 							$replace,
 							$url['path'],
 							-1, $rcount);
-					if ($rcount < 1) continue;
+					if ($rcount < 1) {
+                        continue;
+                    }
 				}
 			} else { // host not in whitelist
 				continue;
@@ -157,8 +168,12 @@ class VideoFrames extends Plugin {
 			$height     = intval($entry->getAttribute('height'));
 			$width      = intval($entry->getAttribute('width'));
 			// youtube defaults
-			if ($height < 1) $height = 315;
-			if ($width  < 1) $width = 560;
+			if ($height < 1) {
+                $height = 315;
+            }
+			if ($width  < 1) {
+                $width = 560;
+            }
 
 			$tag_iframe = $doc->createElement('iframe');
 			$tag_iframe->setAttribute('allowfullscreen', '');

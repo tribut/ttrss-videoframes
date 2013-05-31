@@ -112,18 +112,13 @@ class VideoFrames extends Plugin {
 		// replace <object><embed> style flash videos with iframe
 		$entries = $xpath->query('//object/embed[@src]');
 		foreach ($entries as $entry) {
-			$src        = $entry->getAttribute('src');
-			// unfortunately parse_url won't support urls without protocol
-			// (albeit apparently allowed by the RFC...)
-			if (strpos($src, '//') === 0) {
-                $src = 'https:' . $src;
-            }
-			$url        = parse_url($src);
+			$src = $this->_getSrcAttribute($entry);
+			$url = parse_url($src);
 			if (!$url) {
                 continue;
             }
 
-			$host       = $url['host'];
+			$host = $url['host'];
 			if (array_key_exists($host, $this->transform_objects)) {
 				$pattern = $this->transform_objects[$host][0];
 				$replace = $this->transform_objects[$host][1];

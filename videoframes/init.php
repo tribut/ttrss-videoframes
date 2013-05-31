@@ -73,6 +73,7 @@ class VideoFrames extends Plugin {
 	}
 
 	function hook_sanitize($doc, $site_url, $allowed_elements = null, $disallowed_attributes = null) {
+        $remove_unknown_iframes = false;
 		if (!is_null($allowed_elements) && !is_null($disallowed_attributes)) {
 			if (!array_search('iframe', $allowed_elements)) {
 				$remove_unknown_iframes = true;

@@ -1,6 +1,62 @@
 <?php
 class VideoFrames extends Plugin {
 
+    /**
+     * Array of whitelisted iframes
+     * [key]   full hostname of the src attribute
+     * [value] start of the path must match this string
+     *
+     * @var array
+     */
+    protected $allowed_iframes = array(
+        'www.youtube.com' => '/embed/',
+        'www.youtube-nocookie.com' => '/embed/',
+        'player.vimeo.com' => '/video/',
+        'www.myvideo.de' => '/embed/',
+        'www.dailymotion.com' => '/embed/video/',
+        'www.viddler.com' => '/embed/',
+        'w.soundcloud.com' => '/player/'
+    );
+
+    /**
+     * Array of <object><embed></object> style embedded flash videos that should
+     * be transformed to an iframe
+     *
+     * [key] full hostname in the src attribute
+     * [value][0] regex that the path must match against or, if it starts with
+     *            a '?' name of the query string argument that is needed to
+     *            build the iframe src
+     * [value][1] path of the iframe src, $1 is replaced by the first grouped
+     *            expression in the regex or the value of the query string
+     *            variable, respectively
+     * [value][2] (optional) hostname for iframe src
+     *
+     * @var array
+     */
+    protected $transform_objects = array(
+        'www.youtube.com' => array(
+            '#^/v/([a-zA-Z0-9_]+)(&.*)?$#',
+            '/embed/$1'
+        ),
+        'www.youtube-nocookie-com' => array(
+            '#^/v/([a-zA-Z0-9_]+)(&.*)?$#',
+            '/embed/$1'
+        ),
+        'vimeo.com' => array(
+            '?clip_id',
+            '/video/$1',
+            'player.vimeo.com'
+        ),
+        'www.myvideo.de' => array(
+            '#^/movie/([a-zA-Z0-9_]+)(&.*)?$#',
+            '/embed/$1'
+        ),
+        'www.dailymotion.com' => array(
+            '#^/swf/video/([a-zA-Z0-9_]+)(&.*)?$#',
+            '#/embed/video/$1#'
+        )
+    );
+
 	function about() {
 		return array(0.3,
 			"Enable the playback of embedded videos from well-known sites",
@@ -17,56 +73,7 @@ class VideoFrames extends Plugin {
 	}
 
 	function hook_sanitize($doc, $site_url, $allowed_elements = null, $disallowed_attributes = null) {
-		// array of whitelisted iframes
-		// [key]   full hostname of the src attribute
-		// [value] start of the path must match this string
-		$allowed_iframes = array(
-			'www.youtube.com' => '/embed/',
-			'www.youtube-nocookie.com' => '/embed/',
-			'player.vimeo.com' => '/video/',
-			'www.myvideo.de' => '/embed/',
-			'www.dailymotion.com' => '/embed/video/',
-			'www.viddler.com' => '/embed/',
-			'w.soundcloud.com' => '/player/'
-		);
-
-		// array of <object><embed></object> style
-		// embedded flash videos that should be transformed
-		// to an iframe
-		// [key] full hostname in the src attribute
-		// [value][0] regex that the path must match against
-		//            or, if it starts with a '?' name of the
-		//            query string argument that is needed to
-		//            build the iframe src
-		// [value][1] path of the iframe src, $1 is replaced
-		//            by the first grouped expression in the
-		//            regex or the value of the query string
-		//            variable, respectively
-		// [value][2] (optional) hostname for iframe src
-		$transform_objects = array(
-			'www.youtube.com' => array(
-				'#^/v/([a-zA-Z0-9_]+)(&.*)?$#',
-				'/embed/$1'
-			),
-			'www.youtube-nocookie-com' => array(
-				'#^/v/([a-zA-Z0-9_]+)(&.*)?$#',
-				'/embed/$1'
-			),
-			'vimeo.com' => array(
-				'?clip_id',
-				'/video/$1',
-				'player.vimeo.com'
-			),
-			'www.myvideo.de' => array(
-				'#^/movie/([a-zA-Z0-9_]+)(&.*)?$#',
-				'/embed/$1'
-			),
-			'www.dailymotion.com' => array(
-				'#^/swf/video/([a-zA-Z0-9_]+)(&.*)?$#',
-				'#/embed/video/$1#'
-			)
-		);
-
+        $remove_unknown_iframes = false;
 		if (!is_null($allowed_elements) && !is_null($disallowed_attributes)) {
 			if (!array_search('iframe', $allowed_elements)) {
 				$remove_unknown_iframes = true;
@@ -79,28 +86,21 @@ class VideoFrames extends Plugin {
 		// remove sandbox from whitelisted iframes and force https
 		$entries = $xpath->query('//iframe');
 		foreach ($entries as $entry) {
-			$src = $entry->getAttribute('src');
-			// unfortunately parse_url won't support urls without protocol
-			// (albeit apparently allowed by the RFC...)
-			if (strpos($src, '//') === 0) $src = 'https:' . $src;
+			$src = $this->_getSrcAttribute($entry);
 			$url = parse_url($src);
 
-			if ($url &&
-			    array_key_exists($url['host'], $allowed_iframes) &&
-			    strpos($url['path'], $allowed_iframes[$url['host']]) === 0
-			) {
+			if ($this->_isIframeUrlValid($url)) {
 				// force https
 				// http_build_url would be the nice solution,
 				// but that's apparently not available everywhere
 				$src = preg_replace('#^[a-z]+://#i', 'https://',
 					$src, -1, $rcount);
-				if ($rcount < 1) continue; // if this happens the url is really strange
+				if ($rcount < 1) { // if this happens the url is really strange
+                    continue;
+                }
 				$entry->setAttribute('src', $src);
 
-				// remove sandbox attribute
-				while ($entry->hasAttribute('sandbox')) {
-					$entry->removeAttribute('sandbox');
-				}
+                $entry = $this->_removeSandboxAttribute($entry);
 			} elseif ($remove_unknown_iframes) {
 				$entry->parentNode->removeChild($entry);
 			}
@@ -109,21 +109,21 @@ class VideoFrames extends Plugin {
 		// replace <object><embed> style flash videos with iframe
 		$entries = $xpath->query('//object/embed[@src]');
 		foreach ($entries as $entry) {
-			$src        = $entry->getAttribute('src');
-			// unfortunately parse_url won't support urls without protocol
-			// (albeit apparently allowed by the RFC...)
-			if (strpos($src, '//') === 0) $src = 'https:' . $src;
-			$url        = parse_url($src);
-			if (!$url) continue;
+			$src = $this->_getSrcAttribute($entry);
+			$url = parse_url($src);
+			if (!$url) {
+                continue;
+            }
 
-			$host       = $url['host'];
-			if (array_key_exists($host, $transform_objects)) {
-				$pattern = $transform_objects[$host][0];
-				$replace = $transform_objects[$host][1];
-				if (isset($transform_objects[$host][2]))
-					$newhost = $transform_objects[$host][2];
-				else
-					$newhost = $host;
+			$host = $url['host'];
+			if (array_key_exists($host, $this->transform_objects)) {
+				$pattern = $this->transform_objects[$host][0];
+				$replace = $this->transform_objects[$host][1];
+				if (isset($this->transform_objects[$host][2])) {
+                    $newhost = $this->transform_objects[$host][2];
+                } else {
+                    $newhost = $host;
+                }
 				if ($pattern[0] == '?') {
 					$querykey = substr($pattern, 1);
 					parse_str($url['query'], $query);
@@ -141,9 +141,11 @@ class VideoFrames extends Plugin {
 					$iframesrc = 'https://' . $newhost .
 						preg_replace($pattern,
 							$replace,
-							$url['path'], 
+							$url['path'],
 							-1, $rcount);
-					if ($rcount < 1) continue;
+					if ($rcount < 1) {
+                        continue;
+                    }
 				}
 			} else { // host not in whitelist
 				continue;
@@ -154,9 +156,13 @@ class VideoFrames extends Plugin {
 			$height     = intval($entry->getAttribute('height'));
 			$width      = intval($entry->getAttribute('width'));
 			// youtube defaults
-			if ($height < 1) $height = 315;
-			if ($width  < 1) $width = 560;
- 
+			if ($height < 1) {
+                $height = 315;
+            }
+			if ($width  < 1) {
+                $width = 560;
+            }
+
 			$tag_iframe = $doc->createElement('iframe');
 			$tag_iframe->setAttribute('allowfullscreen', '');
 			$tag_iframe->setAttribute('width', $width);
@@ -174,5 +180,39 @@ class VideoFrames extends Plugin {
 		}
 	}
 
-}
+    protected function _removeSandboxAttribute(DOMNode $node)
+    {
+        while ($node->hasAttribute('sandbox')) {
+            $node->removeAttribute('sandbox');
+        }
 
+        return $node;
+    }
+
+    protected function _getSrcAttribute(DOMNode $node)
+    {
+        $src = $node->getAttribute('src');
+        // unfortunately parse_url won't support urls without protocol
+        // (albeit apparently allowed by the RFC...)
+        if (strpos($src, '//') === 0) {
+            $src = 'https:' . $src;
+        }
+
+        return $src;
+    }
+
+    /**
+     * Checks to see if the URL was parse-able, is in the allowed host list, and
+     * begins with the proper path
+     *
+     * @param array|false $url Output of parse_url
+     *
+     * @return bool
+     */
+    protected function _isIframeUrlValid($url)
+    {
+        return $url &&
+            array_key_exists($url['host'], $this->allowed_iframes) &&
+            strpos($url['path'], $this->allowed_iframes[$url['host']]) === 0;
+    }
+}

@@ -15,7 +15,8 @@ class VideoFrames extends Plugin {
 		'www.myvideo.de' => '/embed/',
 		'www.dailymotion.com' => '/embed/video/',
 		'www.viddler.com' => '/embed/',
-		'w.soundcloud.com' => '/player/'
+		'w.soundcloud.com' => '/player/',
+		'www.facebook.com' => '/video/'
 	);
 
 	/**

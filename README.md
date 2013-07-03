@@ -23,7 +23,7 @@ Requires **tt-rss 1.7.5 or later**. Note, that if your browser does not support 
 
 Please report any problems you might encounter using github's [issue tracker](https://github.com/tribut/ttrss-videoframes/issues).
 
-[![Flattr this](http://api.flattr.com/button/flattr-badge-large.png)](http://flattr.com/thing/1496701/tributttrss-videoframes-on-GitHub)
+[![Flattr this](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/thing/1496701/tributttrss-videoframes-on-GitHub)
 
 ## Legal
 

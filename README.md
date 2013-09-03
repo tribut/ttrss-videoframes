@@ -8,7 +8,7 @@ It currently supports Youtube, Vimeo, Dailymotion, MyVideo, Viddler and SoundClo
 ![Screenshot](http://i.imgur.com/MhccdQn.png)
 
 ## How does it work?
-This plugins allows the inclusion of iframes from the above listed sites without the *sandbox* attribute to enable flash videos. Additionally, the plugin will transform directly embedded videos (object/embed tags) from those site to iframes so they can be shown as well.
+This plugins allows the inclusion of iframes from the above listed sites without the *sandbox* attribute to enable flash videos. Additionally, the plugin will transform directly embedded videos (object/embed tags) from those sites to iframes so they can be shown as well.
 
 If you do not trust one or more of these sites this plugin could be considered a *security risk*. It will force the iframe to be requested over https to avoid possible MITM scenarios however.
 

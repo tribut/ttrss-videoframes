@@ -17,7 +17,8 @@ class VideoFrames extends Plugin {
 		'www.viddler.com' => '/embed/',
 		'w.soundcloud.com' => '/player/',
 		'www.facebook.com' => '/video/embed',
-		'www.ustream.tv' => '/embed/'
+		'www.ustream.tv' => '/embed/',
+		'open.spotify.com' => '/embed/'
 	);
 
 	/**
@@ -60,7 +61,7 @@ class VideoFrames extends Plugin {
 	);
 
 	function about() {
-		return array(0.3,
+		return array(0.4,
 			"Enable the playback of embedded videos from well-known sites",
 			"dxbi",
 			false);

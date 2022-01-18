@@ -75,7 +75,7 @@ class VideoFrames extends Plugin {
 		$host->add_hook($host::HOOK_SANITIZE, $this);
 	}
 
-	function hook_sanitize($doc, $site_url, $allowed_elements = null, $disallowed_attributes = null) {
+	function hook_sanitize($doc, $site_url, $allowed_elements = null, $disallowed_attributes = null, $article_id) {
 		$remove_unknown_iframes = false;
 		if (!is_null($allowed_elements) && !is_null($disallowed_attributes)) {
 			if (!array_search('iframe', $allowed_elements)) {

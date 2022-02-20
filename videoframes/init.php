@@ -90,7 +90,7 @@ class VideoFrames extends Plugin {
 		$entries = $xpath->query('//iframe');
 		foreach ($entries as $entry) {
 			$src = $this->_getSrcAttribute($entry);
-			$url = parse_url($src);
+			$url = $this->_parseUrl($src);
 
 			if ($this->_isIframeUrlValid($url)) {
 				// force https
@@ -113,7 +113,7 @@ class VideoFrames extends Plugin {
 		$entries = $xpath->query('//object/embed[@src]');
 		foreach ($entries as $entry) {
 			$src = $this->_getSrcAttribute($entry);
-			$url = parse_url($src);
+			$url = $this->_parseUrl($src);
 			if (!$url) {
 				continue;
 			}
@@ -202,6 +202,25 @@ class VideoFrames extends Plugin {
 		}
 
 		return $src;
+	}
+
+	/**
+	 * Parse a URL and return its components. Behaves like parse_url() except it
+	 * will always return false if no host-part is found. When is returns
+	 * something other than false, the keys 'host', 'path', 'query' will always
+	 * be set.
+	 */
+	protected function _parseUrl($src)
+	{
+		$url = parse_url($src);
+
+		if (array_key_exists('host', $url)) {
+			if (!array_key_exists('query', $url)) $url['query'] = '';
+			if (!array_key_exists('path', $url)) $url['path'] = '';
+			return $url;
+		} else {
+			return false;
+		}
 	}
 
 	/**
